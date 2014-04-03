@@ -1,6 +1,8 @@
 ---------------------------
-	README
+    README Forecaster
 ---------------------------
+
+Weather Forecast CRON job using forecast.io APIs, this will automatically grab long, lat coordinates by providing the location
 
 @author: harshadura
 @date: 2014-04-03
