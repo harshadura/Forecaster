@@ -1,0 +1,33 @@
+---------------------------
+	README
+---------------------------
+
+@author: harshadura
+@date: 2013-03-31
+@license: WTF!
+
+---------------------------
+Required Software
+---------------------------
+
+(01)    Java 1.6
+(02)    Apache Maven 2.2.1
+(03)    Mysql Server 5.1
+
+---------------------------
+Deploying the Web-App
+---------------------------
+
+>   start mysql server
+
+>   source the database schema. (db_dump.sql)
+        mysql> source <path>/db_dump.sql
+
+>   Using command line, goto the Inside of the project folder.
+
+>   type
+        mvn clean install jetty:run
+
+>   Web app will start serving on the defined port
+
+
