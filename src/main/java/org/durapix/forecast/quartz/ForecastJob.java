@@ -30,8 +30,6 @@ public class ForecastJob implements Job
     private DBConnect dbConnect;
     private Connection con;
     private Statement stm;
-    private String latestUpdate;
-    private double longitute, latitude;
 
     public final static Logger LOGGER = Logger.getLogger(ForecastJob.class.getName());
 
@@ -47,38 +45,44 @@ public class ForecastJob implements Job
             LOGGER.info("\n\nQuartz scheduler starting..");
 
             try {
-                String xy = "";
                 String x = "";
                 String y = "";
+                String xy = "";
 
                 try {
                     ResultSet results = stm.executeQuery("SELECT * FROM tb_feed_weather_city");
                     while (results.next()) {
+
                         String city = results.getString("name");
 
-//                        if (city.equals("Singapore")) {
-//                            xy = results.getString("feed_url");
+                        /**
+                         * this method isnt used before sometime gets : OVER_QUERY_LIMIT problem
+                         */
+//                            double arrXXYY[] = getLatLong(getLocationInfo(city));
+//                            x = String.valueOf(arrXXYY[0]);
+//                            y = String.valueOf(arrXXYY[1]);
 
-//                            if (xy != null){
+                        ///////////////////////////////////////////////
 
-//                                String arrXY[] = xy.split(",");
-//                                x = arrXY[0];
-//                                y = arrXY[1];
+                        xy = results.getString("feed_url");
+                        if (xy != null){
+                            String arrXY[] = xy.split(",");
+                            x = arrXY[0];
+                            y = arrXY[1];
 
-                                getLatLong(getLocationInfo(city));
-                                x = String.valueOf(latitude);
-                                y = String.valueOf(longitute);
+                            LOGGER.info(">>>>>>>>>>>> Data for : " + city + " coordinates: " + x + "," + y);
 
-                                String weatherHtmlTag = generateHTMLforcastByCityXY(x, y);
-                                LOGGER.info("^^^^^^^ weatherHtmlTag : " + weatherHtmlTag);
+                            String weatherHtmlTag = generateHTMLforcastByCityXY(x, y);
+                            LOGGER.info("^^^^^^^ weatherHtmlTag : " + weatherHtmlTag);
 
-                                String sql1 = "update `tb_feed_weather_city` set `status` = ? where `feed_url` = ?";
-                                PreparedStatement preparedStatement = con.prepareStatement(sql1);
-                                preparedStatement.setString(2, xy);
-                                preparedStatement.setString(1, weatherHtmlTag);
-                                preparedStatement.executeUpdate();
-//                            }
-//                        }
+                            String sql1 = "update `tb_feed_weather_city` set `status` = ? where `name` = ?";
+                            PreparedStatement preparedStatement = con.prepareStatement(sql1);
+                            preparedStatement.setString(2, city);
+                            preparedStatement.setString(1, weatherHtmlTag);
+                            preparedStatement.executeUpdate();
+                            LOGGER.info("<<<<<<<<<<< Data saved : " + city + " coordinates: " + x + "," + y);
+
+                        }
                     }
                 } catch (Exception ee) {
                     ee.getMessage();
@@ -220,27 +224,22 @@ public class ForecastJob implements Job
         return jsonObject;
     }
 
-    private boolean getLatLong(JSONObject jsonObject)
+    private double[] getLatLong(JSONObject jsonObject)
     {
-
+        double arrXY[] = new double[2];
         try {
 
-            longitute = ((JSONArray)jsonObject.get("results")).getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lng");
-            LOGGER.info("Log1" + longitute + "");
-            latitude = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
+            arrXY[0] = ((JSONArray)jsonObject.get("results")).getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lng");
+            arrXY[1] = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
                     .getJSONObject("geometry").getJSONObject("location")
                     .getDouble("lat");
-            LOGGER.info("lat1" + latitude + "");
         } catch (JSONException e) {
-
-            longitute=0;
-            latitude = 0;
+            arrXY[0] = 0;
+            arrXY[1] = 0;
             LOGGER.info("getLatLong" + e.toString());
-            return false;
-
         }
 
-        return true;
+        return arrXY;
     }
 
 
