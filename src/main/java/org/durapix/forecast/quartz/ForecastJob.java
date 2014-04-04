@@ -143,41 +143,50 @@ public class ForecastJob implements Job
         //In case there is no daily data available
         if(daily.days()<0)
             System.out.println("No daily data.");
-        else
+        else {
             LOGGER.info("\nDaily:\n");
-        //Print daily data
-        for(int i = 0; i<1; i++){
-            String [] h = daily.getDay(i).getFieldsArray();
-            LOGGER.info("##### " + "Day #"+(i+1));
-            for(int j=0; j<h.length; j++)  {
 
-                LOGGER.info("***** " + h[j]+": "+daily.getDay(i).getByKey(h[j]));
+        // next-day forecast
+        int i = 1;
+        String [] h = daily.getDay(i).getFieldsArray();
+        LOGGER.info("##### " + "next-day forecast -- day#"+(i+1));
+        for(int j=0; j<h.length; j++)  {
 
-                if(h[j].equals("summary")){
-                    comingDaySummary = daily.getDay(i).getByKey(h[j]);
-                    comingDaySummary = comingDaySummary.replace("\"", "");
-                }
-                if(h[j].equals("temperatureMax")){
-                    comingDayTempMax = daily.getDay(i).getByKey(h[j]);
-                }
-                if(h[j].equals("temperatureMin")){
-                    comingDayTempMin = daily.getDay(i).getByKey(h[j]);
-                }
-                if(h[j].equals("icon")){
-                    comingDayIcon = daily.getDay(i).getByKey(h[j]);
-                }
+            LOGGER.info("***** " + h[j]+": "+daily.getDay(i).getByKey(h[j]));
+
+            if(h[j].equals("summary")){
+                comingDaySummary = daily.getDay(i).getByKey(h[j]);
+                comingDaySummary = comingDaySummary.replace("\"", "");
+            }
+            if(h[j].equals("temperatureMax")){
+                comingDayTempMax = daily.getDay(i).getByKey(h[j]);
+            }
+            if(h[j].equals("temperatureMin")){
+                comingDayTempMin = daily.getDay(i).getByKey(h[j]);
+            }
+            if(h[j].equals("icon")){
+                comingDayIcon = daily.getDay(i).getByKey(h[j]);
             }
         }
+        }
 
-        String htmlTags  = "<table width='236' border='0' cellpadding='0' cellspacing='0'><tr>" +
-                "<td colspan='3'>Today: " + currentDaySummary + "</td></tr><tr><td width='60' rowspan='2' valign='top'>" +
-                "<img src='images/weather/animated/14.gif' width='60' height='40'></td><td width='6'>&nbsp;</td>" +
+        String htmlTags  = "<table class='weather_dis' width='300' border='0' cellpadding='0' cellspacing='0'><tr>" +
+                "<td colspan='3'><b>Today</b> - " + currentDaySummary + "</td></tr><tr><td width='60' rowspan='2' valign='top'>" +
+                "<img src='images/weather/weather_gif/"+ getWeatherStateIcon(currentDayIcon) + "' width='60' height='40'></td><td width='6'>&nbsp;</td>" +
                 "<td width='170'> Temp: " + currentDayTemp + "</td></tr><tr>" +
                 "<td>&nbsp;</td><td> Wind speed: " + currentDayWind + "</td></tr><tr>" +
-                "<td colspan='3'>&nbsp;</td></tr><tr><td colspan='3'>Tommorrow: " + comingDaySummary + "</td></tr><tr>" +
-                "<td colspan='3'> Max Temp: " + comingDayTempMax + "</td></tr><tr>" +
-                "<td colspan='3'> Min Temp: " + comingDayTempMin + "</td></tr><tr>" +
-                "<td colspan='3'><br>Current Time: <span id='timer'>" + currentDayTime + "</span></td></tr></table>";
+                "<td colspan='3'><hr/></td></tr><tr>" +
+                "<td colspan='3'><b>Tomorrow</b> - " + comingDaySummary + "</td></tr><tr><td width='60' rowspan='2' valign='top'>" +
+                "<img src='images/weather/weather_gif/"+ getWeatherStateIcon(comingDayIcon) + "' width='60' height='40'></td><td width='6'>&nbsp;</td>" +
+                "<td width='170'> Max Temp: " + comingDayTempMax + "</td></tr><tr>" +
+                "<td>&nbsp;</td><td> Min Temp: " + comingDayTempMin + "</td></tr><tr>" +
+                "<td colspan='3'><hr/></td></tr><tr>" +
+                "<td colspan='3'>Current Time: <span id='timer'>" + currentDayTime + "</span></td></tr></table>";
+
+//                "<tr><td colspan='3'>Tommorrow: " + comingDaySummary + "</td></tr><tr>" +
+//                "<td colspan='3'> Max Temp: " + comingDayTempMax + "</td></tr><tr>" +
+//                "<td colspan='3'> Min Temp: " + comingDayTempMin + "</td></tr><tr>" +
+//                "<td colspan='3'><br>Current Time: <span id='timer'>" + currentDayTime + "</span></td></tr></table>";
 
         return htmlTags;
     }
@@ -241,6 +250,39 @@ public class ForecastJob implements Job
 
         return arrXY;
     }
+
+    private String getWeatherStateIcon(String state)
+    {
+        String icon = "";
+        try {
+            //wind fog cloudy rain clear partly-cloudy-night
+
+            if(state.contains("clear")){
+                icon = "1";
+            }
+            else if(state.contains("rain")){
+                icon = "14";
+            }
+            else if(state.contains("wind")){
+                icon = "14_";
+            }
+            else if(state.contains("cloudy")){
+                icon = "3";
+            }
+            else if(state.contains("fog")){
+                icon = "6";
+            }
+            else {
+                icon = "8";
+            }
+
+        } catch (Exception e) {
+            LOGGER.info("getLatLong" + e.toString());
+        }
+
+        return icon + ".png";
+    }
+
 
 
 }
