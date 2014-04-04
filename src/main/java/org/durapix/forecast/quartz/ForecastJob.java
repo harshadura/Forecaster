@@ -257,8 +257,13 @@ public class ForecastJob implements Job
         try {
             //wind fog cloudy rain clear partly-cloudy-night
 
+            state = state.toLowerCase();
+
             if(state.contains("clear")){
                 icon = "1";
+            }
+            else if(state.contains("drizzle")){
+                icon = "12";
             }
             else if(state.contains("rain")){
                 icon = "14";
@@ -277,7 +282,7 @@ public class ForecastJob implements Job
             }
 
         } catch (Exception e) {
-            LOGGER.info("getLatLong" + e.toString());
+            LOGGER.info("Err: " + e.toString());
         }
 
         return icon + ".png";
